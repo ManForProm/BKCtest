@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "725654071074",
+    "project_id": "bkctest-36260",
+    "storage_bucket": "bkctest-36260.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725654071074:android:f6557fb1e6e45f2dab677b",
+        "android_client_info": {
+          "package_name": "com.yahorhous.bkctest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4xpTvAOouC7nXHseceyf3Stx8JAqF-og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
