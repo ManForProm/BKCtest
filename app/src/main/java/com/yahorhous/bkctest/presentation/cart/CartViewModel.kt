@@ -11,6 +11,7 @@ import com.yahorhous.bkctest.domain.model.product.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ class CartViewModel @Inject constructor(
     }
 
     fun checkout(onSuccess: () -> Unit) = viewModelScope.launch {
-        val user = authRepository.getCurrentUser() ?: return@launch
+        val user = authRepository.getCurrentUser().first() ?: return@launch
         Log.d("CartViewModel", "Current User: $user")
         when (val result = repository.checkout(user.uid)) {
             is Resource.Success -> onSuccess()

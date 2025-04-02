@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,8 +21,8 @@ fun AuthScreen(
 ) {
     var isSignUp by remember { mutableStateOf(false) }
 
-    // Проверяем, авторизован ли пользователь
-    val currentUser = viewModel.authRepository.getCurrentUser()
+    val currentUser by viewModel.authRepository.getCurrentUser().collectAsState(initial = null)
+
     if (currentUser != null) {
         LaunchedEffect(Unit) {
             navController.navigate("products") {

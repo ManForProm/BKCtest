@@ -19,10 +19,10 @@ import javax.inject.Inject
 interface AuthRepository {
     suspend fun signUp(name: String, email: String, password: String): Resource<Unit>
     suspend fun signIn(email: String, password: String): Resource<Unit>
-    fun getCurrentUser(): FirebaseUser?
+    fun getCurrentUser(): Flow<FirebaseUser?>
     fun logout()
     fun getPurchaseHistory(userId: String): Flow<Resource<List<Purchase>>>
-    suspend fun getUserData(userId: String): Resource<String>
+    fun getUserData(userId: String): Flow<Resource<String>>
 }
 
 class AuthRepositoryImpl @Inject constructor(
@@ -58,7 +58,13 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCurrentUser(): FirebaseUser? = auth.currentUser
+    override fun getCurrentUser(): Flow<FirebaseUser?> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser)
+        }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }
 
     override fun logout() = auth.signOut()
 
@@ -96,12 +102,13 @@ class AuthRepositoryImpl @Inject constructor(
         emit(Resource.Loading())
     }
 
-    override suspend fun getUserData(userId: String): Resource<String> {
-        return try {
+    override fun getUserData(userId: String): Flow<Resource<String>> = flow {
+        emit(Resource.Loading())
+        try {
             val doc = firestore.collection("users").document(userId).get().await()
-            Resource.Success(doc.getString("name") ?: "")
+            emit(Resource.Success(doc.getString("name") ?: ""))
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Failed to load user")
+            emit(Resource.Error(e.message ?: "Failed to load user"))
         }
     }
 

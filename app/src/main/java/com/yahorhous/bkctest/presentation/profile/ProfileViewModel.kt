@@ -22,24 +22,31 @@ class ProfileViewModel @Inject constructor(
     val purchases: StateFlow<Resource<List<Purchase>>> = _purchases
 
     init {
-        loadUserData()
-        loadPurchases()
-    }
-
-    private fun loadUserData() {
         viewModelScope.launch {
-            authRepository.getCurrentUser()?.uid?.let { uid ->
-                _userName.value = authRepository.getUserData(uid)
+            authRepository.getCurrentUser().collect { user ->
+                if (user != null) {
+                    loadUserData(user.uid)
+                    loadPurchases(user.uid)
+                } else {
+                    _userName.value = Resource.Error("No user logged in")
+                    _purchases.value = Resource.Error("No user logged in")
+                }
             }
         }
     }
 
-    private fun loadPurchases() {
+    private fun loadUserData(userId: String) {
         viewModelScope.launch {
-            authRepository.getCurrentUser()?.uid?.let { uid ->
-                authRepository.getPurchaseHistory(uid).collect { resource ->
-                    _purchases.value = resource
-                }
+            authRepository.getUserData(userId).collect { resource ->
+                _userName.value = resource
+            }
+        }
+    }
+
+    private fun loadPurchases(userId: String) {
+        viewModelScope.launch {
+            authRepository.getPurchaseHistory(userId).collect { resource ->
+                _purchases.value = resource
             }
         }
     }
